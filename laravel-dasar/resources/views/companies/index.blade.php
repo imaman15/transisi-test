@@ -10,7 +10,10 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-end align-items-center mb-3">
                         <a href="{{ route('companies.create') }}" class="btn btn-primary mr-2">Add Companies</a>
-                        <a href="{{ url('companies/create') }}" class="btn btn-primary">Import Data Excel</a>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                            Import Data Excel
+                        </button>
                     </div>
 
                     @if (session()->has('success'))
@@ -23,52 +26,86 @@
                             {{session()->get('error')}}
                         </div>
                     @endif
-
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Logo Perusahaan</th>
-                                <th>Nama Perusahaan</th>
-                                <th>Email Perusahaan</th>
-                                <th>Website</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($companies as $item)
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
                                 <tr>
-                                    <td scope="row">{{ $loop->iteration }}</td>
-                                    <td>{{ $item->logo }}</td>
-                                    <td>
-                                        <a href="{{ route('companies.show', $item->id) }}">{{ $item->name }}</a>
-                                    </td>
-                                    <td>{{ $item->email }}</td>
-                                    <td>{{ $item->website }}</td>
-                                    <td>
-                                        <div>
-                                            <div class="d-flex justify-content-around">
-                                                <a class="btn btn-primary btn-sm" href="{{ route('companies.edit', $item->id) }}" role="button">Edit</a>
-                                                <form action="{{ route('companies.destroy', $item->id) }}" method="post">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </td>
+                                    <th>#</th>
+                                    <th class="text-center">Logo Perusahaan</th>
+                                    <th>Nama Perusahaan</th>
+                                    <th>Website</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
-                            @empty
-                                <td colspan="6" class="text-center">Tidak ada data...</td>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="d-flex justify-content-center">
-                        {{ $companies->render() }}
+                            </thead>
+                            <tbody>
+                                @forelse ($companies as $key => $item)
+                                    <tr>
+                                        <td scope="row" class="align-middle text-center">{{ $companies->firstItem() + $key }}</td>
+                                        <td class="align-middle text-center">
+                                            <img src="{{ asset('storage/'. $item->logo) }}" class="img-fluid rounded-lg" width="70" alt="{{ $item->name }}">
+                                        </td>
+                                        <td class="align-middle">
+                                            <a href="{{ route('companies.show', $item->id) }}">{{ $item->name }}</a>
+                                            <p class="text-sm">{{ $item->email }}</p>
+                                        </td>
+                                        <td class="align-middle">{{ $item->website }}</td>
+                                        <td class="align-middle">
+                                            <div>
+                                                <div class="d-flex flex-column flex-md-row justify-content-center align-items-center">
+                                                    <a class="btn btn-primary btn-sm mr-md-1" href="{{ route('companies.edit', $item->id) }}" role="button">Edit</a>
+                                                    <a class="btn btn-primary btn-sm mr-md-1" href="{{ route('companies.edit', $item->id) }}" role="button">Export Employees</a>
+                                                    <form class="my-auto" action="{{ route('companies.destroy', $item->id) }}" method="post">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="btn btn-danger btn-sm h-100" type="submit">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <td colspan="5" class="text-center">Tidak ada data...</td>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="d-flex">{{ $companies->links() }}</div>
+                        <div class="ml-2 mb-3">Showing {{ $companies->firstItem() }} to {{ $companies->lastItem() }} of {{ $companies->total() }} results</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <form method="post" action="{{route('companies.import')}}" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            @csrf
+            <div class="form-group">
+                <label for="file">Pilih file excel</label>
+                <input name="file" type="file" class="form-control-file" required>
+                @error('file')
+                    <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Import</button>
+        </div>
+    </form>
+      </div>
+    </div>
+  </div>
 @endsection

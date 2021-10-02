@@ -26,5 +26,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::middleware('auth')->group(function () {
     Route::resource('companies', CompaniesController::class);
+    Route::post('companies/import', [CompaniesController::class, 'import'])->name('companies.import');
     Route::resource('employees', EmployeesController::class);
 });

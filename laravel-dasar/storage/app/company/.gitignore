@@ -1,3 +1,5 @@
 *
 !public/
+!company/
+!default.png
 !.gitignore

@@ -4,7 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Companies;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+
+use App\Imports\UsersImport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\Controller;
+use App\Imports\CompaniesImport;
 
 class CompaniesController extends Controller
 {
@@ -39,10 +45,12 @@ class CompaniesController extends Controller
     {
         $this->validateData($request);
 
+        $pathLogo = $request->logo->store('company');
+
         $companies = Companies::create([
             'name' => $request->name,
             'email' => $request->email,
-            'logo' => $request->logo,
+            'logo' => $pathLogo,
             'website' => $request->website,
         ]);
 
@@ -86,12 +94,16 @@ class CompaniesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validateData($request, true);
+        $this->validateData($request, $id);
         $companies = Companies::find($id);
         $companies->name = $request->name;
         $companies->email = $request->email;
         if ($request->logo) {
-            $companies->logo = $request->logo;
+            if ($companies->logo !== 'company/default.png' && Storage::exists($companies->logo)) {
+                Storage::delete($companies->logo);
+            }
+            $pathLogo = $request->logo->store('company');
+            $companies->logo = $pathLogo;
         }
         $companies->website = $request->website;
         $companies->save();
@@ -111,6 +123,9 @@ class CompaniesController extends Controller
     public function destroy($id)
     {
         $companies = Companies::find($id);
+        if ($companies->logo !== 'company/default.png' && Storage::exists($companies->logo)) {
+            Storage::delete($companies->logo);
+        }
         $companies->delete();
         if ($companies) {
             return redirect('/companies')->with('success', 'Data berhasil dihapus!');
@@ -119,20 +134,34 @@ class CompaniesController extends Controller
         }
     }
 
-    private function validateData($request, $edit = false)
+    private function validateData($request, $id = null)
     {
         $data = [
             'name' => 'required',
-            'email' => ['required', Rule::unique('companies', 'email')->ignore($request->post('email'), 'id')],
+            'email' => ['required', Rule::unique('companies')->ignore($id)],
             'website' => 'required',
         ];
 
-        if ($edit) {
-            $data['logo'] = 'mimes:jpeg,bmp,png|max:2048|dimensions:min_width=100,min_height=100';
+        if ($id) {
+            $data['logo'] = 'image|max:2048|dimensions:min_width=100,min_height=100';
         } else {
-            $data['logo'] = 'required|mimes:jpeg,bmp,png|max:2048|dimensions:min_width=100,min_height=100';
+            $data['logo'] = 'required|image|max:2048|dimensions:min_width=100,min_height=100';
         }
 
         return $request->validate($data);
+    }
+
+    public function import(Request $request)
+    {
+
+        $request->validate([
+            'file' => 'required|mimes:xlsx'
+        ]);
+
+        $file = $request->file('file');
+
+        Excel::import(new CompaniesImport, $file);
+
+        return redirect('/companies')->with('success', 'File berhasil di import');
     }
 }
