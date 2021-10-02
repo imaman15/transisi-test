@@ -28,4 +28,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('companies', CompaniesController::class);
     Route::post('companies/import', [CompaniesController::class, 'import'])->name('companies.import');
     Route::resource('employees', EmployeesController::class);
+    Route::post('employees/import', [EmployeesController::class, 'import'])->name('employees.import');
+    Route::get('employees/{id}/pdf', [EmployeesController::class, 'pdf'])->name('employees.pdf');
 });

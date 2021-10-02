@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
-use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Imports\CompaniesImport;
@@ -21,7 +20,7 @@ class CompaniesController extends Controller
      */
     public function index()
     {
-        $companies = Companies::paginate(5);
+        $companies = Companies::with('employees')->paginate(5);
         return view('companies.index', compact('companies'));
     }
 

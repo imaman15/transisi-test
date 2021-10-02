@@ -53,7 +53,7 @@
                                             <div>
                                                 <div class="d-flex flex-column flex-md-row justify-content-center align-items-center">
                                                     <a class="btn btn-primary btn-sm mr-md-1" href="{{ route('companies.edit', $item->id) }}" role="button">Edit</a>
-                                                    <a class="btn btn-primary btn-sm mr-md-1" href="{{ route('companies.edit', $item->id) }}" role="button">Export Employees</a>
+                                                    <a class="btn btn-primary btn-sm mr-md-1" href="{{ route('employees.pdf', $item->id) }}" role="button">Export Employees <span class="badge badge-light">{{ count($item->employees) }}</span></a>
                                                     <form class="my-auto" action="{{ route('companies.destroy', $item->id) }}" method="post">
                                                         @csrf
                                                         @method('DELETE')
@@ -78,14 +78,14 @@
         </div>
     </div>
 </div>
-  
+
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
     <form method="post" action="{{route('companies.import')}}" enctype="multipart/form-data">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Import Data Excel</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>

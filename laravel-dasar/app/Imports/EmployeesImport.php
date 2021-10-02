@@ -2,13 +2,13 @@
 
 namespace App\Imports;
 
-use App\Models\Companies;
+use App\Models\Employees;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithUpserts;
 
-class CompaniesImport implements ToModel, WithHeadingRow, WithChunkReading, WithUpserts
+class EmployeesImport implements ToModel, WithHeadingRow, WithChunkReading, WithUpserts
 {
     /**
      * @param array $row
@@ -17,21 +17,20 @@ class CompaniesImport implements ToModel, WithHeadingRow, WithChunkReading, With
      */
     public function model(array $row)
     {
-        return new Companies([
+        return new Employees([
             'name'  => $row['name'],
+            'company_id'  => $row['company_id'],
             'email' => $row['email'],
-            'logo'    => 'company/default.png',
-            'website' => $row['website'],
         ]);
-    }
-
-    public function uniqueBy()
-    {
-        return 'email';
     }
 
     public function chunkSize(): int
     {
         return 10;
+    }
+
+    public function uniqueBy()
+    {
+        return 'email';
     }
 }
