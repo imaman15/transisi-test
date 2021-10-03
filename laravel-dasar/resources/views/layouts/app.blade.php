@@ -18,6 +18,12 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script
+    src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -66,8 +72,7 @@
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                       onclick="event.preventDefault() document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
 
@@ -86,5 +91,49 @@
             @yield('content')
         </main>
     </div>
+    <script type="text/javascript">
+        // CSRF Token
+        const CSRF_TOKEN = $('[name="_token"]').val();
+
+        $(document).ready(function () {
+            $.noConflict();
+
+            $('#company').select2({
+                placeholder: "Pilih Nama Perusahaan",
+                allowClear: true,
+                ajax: {
+                    url: '{{ route("companies.list") }}',
+                    type: 'post',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                    const query = {
+                        _token: CSRF_TOKEN,
+                        search: params.term,
+                        page: params.page || 1
+                    }
+
+                    // Query parameters will be ?search=[term]&page=[page]
+                    return query;
+                    },
+                    processResults({ data }) {
+                        return {
+                            results: $.map(data, function(item){
+                                return {
+                                    text:item.name,
+                                    id:item.id
+                                }
+                            }),
+                            pagination: {
+                                more:true
+                            }
+                        };
+                    },
+                    cache:true
+                }
+            });
+        });
+
+        </script>
 </body>
 </html>

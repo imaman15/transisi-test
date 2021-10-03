@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Imports\EmployeesImport;
 use App\Models\Companies;
 use PDF;
+use Illuminate\Validation\Rule;
 
 class EmployeesController extends Controller
 {
@@ -31,7 +32,7 @@ class EmployeesController extends Controller
      */
     public function create()
     {
-        //
+        return view('employees.create');
     }
 
     /**
@@ -42,7 +43,19 @@ class EmployeesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validateData($request);
+
+        $employees = Employees::create([
+            'name' => $request->name,
+            'company_id' => $request->company,
+            'email' => $request->email,
+        ]);
+
+        if ($employees) {
+            return redirect('/employees')->with('success', 'Data berhasil disimpan!');
+        } else {
+            return redirect('/employees')->with('error', 'Data gagal disimpan!');
+        }
     }
 
     /**
@@ -62,9 +75,10 @@ class EmployeesController extends Controller
      * @param  \App\Models\Employees  $employees
      * @return \Illuminate\Http\Response
      */
-    public function edit(Employees $employees)
+    public function edit($id)
     {
-        //
+        $employees = Employees::find($id);
+        return view('employees.edit', compact('employees'));
     }
 
     /**
@@ -74,9 +88,19 @@ class EmployeesController extends Controller
      * @param  \App\Models\Employees  $employees
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Employees $employees)
+    public function update(Request $request, $id)
     {
-        //
+        $this->validateData($request, $id);
+        $employees = Employees::find($id);
+        $employees->name = $request->name;
+        $employees->company_id = $request->company;
+        $employees->email = $request->email;
+        $employees->save();
+        if ($employees) {
+            return redirect('/employees')->with('success', 'Data berhasil disimpan!');
+        } else {
+            return redirect('/employees')->with('error', 'Data gagal disimpan!');
+        }
     }
 
     /**
@@ -117,5 +141,15 @@ class EmployeesController extends Controller
         $pdf = PDF::loadView('employees.pdf', ['employees' => $employees, 'company' => $companies]);
         return $pdf->stream($companies->name . '.pdf');
         // $pdf->download($companies->name . '.pdf');
+    }
+
+    private function validateData($request, $id = null)
+    {
+        $data = [
+            'name' => 'required',
+            'email' => ['required', Rule::unique('employees')->ignore($id)],
+            'company' => 'required',
+        ];
+        return $request->validate($data);
     }
 }

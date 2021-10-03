@@ -163,4 +163,17 @@ class CompaniesController extends Controller
 
         return redirect('/companies')->with('success', 'File berhasil di import');
     }
+
+    public function getCompanies(Request $request)
+    {
+        $search = $request->search;
+
+        if ($search == "") {
+            $companies = Companies::orderby('name', 'asc')->select('id', 'name')->paginate(5);
+        } else {
+            $companies = Companies::orderby('name', 'asc')->select('id', 'name')->where('name', 'like', '%' . $search . '%')->paginate(5);
+        }
+
+        return response()->json($companies);
+    }
 }

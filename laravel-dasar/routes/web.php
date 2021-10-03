@@ -27,6 +27,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::middleware('auth')->group(function () {
     Route::resource('companies', CompaniesController::class);
     Route::post('companies/import', [CompaniesController::class, 'import'])->name('companies.import');
+    Route::post('companies/list', [companiesController::class, 'getCompanies'])->name('companies.list');
     Route::resource('employees', EmployeesController::class);
     Route::post('employees/import', [EmployeesController::class, 'import'])->name('employees.import');
     Route::get('employees/{id}/pdf', [EmployeesController::class, 'pdf'])->name('employees.pdf');
