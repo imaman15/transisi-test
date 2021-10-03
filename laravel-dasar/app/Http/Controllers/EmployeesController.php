@@ -85,9 +85,15 @@ class EmployeesController extends Controller
      * @param  \App\Models\Employees  $employees
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Employees $employees)
+    public function destroy($id)
     {
-        //
+        $employees = Employees::find($id);
+        $employees->delete();
+        if ($employees) {
+            return redirect('/employees')->with('success', 'Data berhasil dihapus!');
+        } else {
+            return redirect('/employees')->with('error', 'Data gagal dihapus!');
+        }
     }
 
     public function import(Request $request)
