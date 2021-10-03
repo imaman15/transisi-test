@@ -11,16 +11,11 @@ function cari($arr, $input) {
   $nilai = 1;
   $dataArr = str_split($input, 1);
   for ($i=1; $i < count($dataArr); $i++) { 
-    if (in_array($dataArr[$i], $arr[0])) {
-      $nilai += 1;
-    } else if (in_array($dataArr[$i], $arr[1])) {
-      $nilai += 1;
-    } else if (in_array($dataArr[$i], $arr[2])) {
-      $nilai += 1;
-    } else {
-      $nilai += 0;
+    for ($j=0; $j < 3; $j++) { 
+      if (in_array($dataArr[$i], $arr[$j])) {
+        $nilai += 1;
+      }
     }
-    
   }
   return $nilai == count($dataArr) ? "true" : "false";
 }
